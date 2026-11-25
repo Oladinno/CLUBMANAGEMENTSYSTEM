@@ -14,7 +14,7 @@ from backend.app.models.models import (
     Club, ClubCategory, ClubApplication, User, Student, Membership, Event,
     AttendanceRecord, LeadershipTransition, AcademicSession, AuditLog, UserRole
 )
-from backend.app.schemas.schemas import AcademicSessionCreate, AcademicSessionResponse, UserResponse
+from backend.app.schemas.schemas import AcademicSessionBase, AcademicSessionCreate, AcademicSessionResponse, UserResponse
 from backend.app.api.routes.auth import require_role
 
 router = APIRouter(prefix="/admin", tags=["Student Affairs Administration"])
