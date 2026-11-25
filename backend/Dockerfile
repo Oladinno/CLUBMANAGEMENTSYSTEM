@@ -15,17 +15,14 @@ ENV PYTHONPATH=/app
 
 # Copy requirements and install
 # Supports both root context (backend/requirements.txt) and subfolder context (requirements.txt)
-COPY requirements.txt* backend/requirements.txt* ./
+COPY requirements.txt* ./
+COPY . /tmp/src/
 RUN if [ -f "requirements.txt" ]; then \
         pip install --no-cache-dir -r requirements.txt; \
-    else \
-        pip install --no-cache-dir -r backend/requirements.txt; \
-    fi
-
-# Copy application source code
-# Creates /app/backend/ regardless of whether build context is repo root or /backend folder
-COPY . /tmp/src/
-RUN if [ -d "/tmp/src/backend" ]; then \
+    elif [ -f "/tmp/src/backend/requirements.txt" ]; then \
+        pip install --no-cache-dir -r /tmp/src/backend/requirements.txt; \
+    fi && \
+    if [ -d "/tmp/src/backend" ]; then \
         cp -r /tmp/src/backend /app/backend; \
     else \
         mkdir -p /app/backend && cp -r /tmp/src/* /app/backend/; \
