@@ -3,12 +3,17 @@ FROM node:20-alpine AS build
 
 WORKDIR /app
 
-# Install dependencies
-COPY frontend/package.json frontend/package-lock.json ./
+# Copy package files (supports both root context and frontend/ root context)
+COPY package.json* package-lock.json* frontend/package.json* frontend/package-lock.json* ./
 RUN npm ci
 
-# Copy frontend source and build
-COPY frontend/ ./
+# Copy frontend source files
+COPY . /tmp/src/
+RUN if [ -d "/tmp/src/frontend" ]; then \
+        cp -r /tmp/src/frontend/* /app/; \
+    else \
+        cp -r /tmp/src/* /app/; \
+    fi && rm -rf /tmp/src
 
 # Pass VITE_API_URL if injected at build time
 ARG VITE_API_URL
