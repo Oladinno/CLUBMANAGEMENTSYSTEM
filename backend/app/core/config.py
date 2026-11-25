@@ -9,7 +9,8 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24  # 1 day
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
 
-    # MySQL connection string
+    # Database connection
+    DATABASE_URL: Optional[str] = None
     MYSQL_USER: str = "root"
     MYSQL_PASSWORD: str = "root"
     MYSQL_HOST: str = "127.0.0.1"
@@ -18,6 +19,14 @@ class Settings(BaseSettings):
 
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
+        if self.DATABASE_URL:
+            # Handle standard mysql:// -> mysql+pymysql://
+            url = self.DATABASE_URL
+            if url.startswith("mysql://"):
+                url = url.replace("mysql://", "mysql+pymysql://", 1)
+            elif url.startswith("mysql+pymysql://"):
+                pass
+            return url
         return f"mysql+pymysql://{self.MYSQL_USER}:{self.MYSQL_PASSWORD}@{self.MYSQL_HOST}:{self.MYSQL_PORT}/{self.MYSQL_DB}?charset=utf8mb4"
 
     # CORS
