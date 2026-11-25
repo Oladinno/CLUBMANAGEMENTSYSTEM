@@ -30,22 +30,5 @@ RUN if [ -f "requirements.txt" ]; then \
 
 EXPOSE 8000
 
-# Wait for MySQL to be ready, then seed and start the server
-CMD ["sh", "-c", "\
-    echo 'Waiting for database...' && \
-    python -c \"\
-import os, time, sys;\
-url = os.environ.get('DATABASE_URL','');\
-if not url: sys.exit(0);\
-import re;\
-m = re.match(r'mysql[+a-z]*://([^:]+):([^@]+)@([^:/]+):?(\\d*)/.*', url);\
-if not m: sys.exit(0);\
-user,pw,host,port = m.groups(); port = port or '3306';\
-import socket;\
-deadline = time.time()+60;\
-while time.time()<deadline:\
-    try: s=socket.create_connection((host,int(port)),3); s.close(); print('DB reachable'); break\
-    except: print('DB not ready, retrying...'); time.sleep(3)\
-\" && \
-    python /app/backend/seed.py || true && \
-    uvicorn backend.app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Seed database (if needed) and start Uvicorn bound to Railway dynamic PORT
+CMD ["sh", "-c", "python /app/backend/seed.py || true; uvicorn backend.app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

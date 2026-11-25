@@ -20,8 +20,8 @@ class Settings(BaseSettings):
     @property
     def SQLALCHEMY_DATABASE_URI(self) -> str:
         if self.DATABASE_URL:
-            # Handle standard mysql:// -> mysql+pymysql://
-            url = self.DATABASE_URL
+            # Handle standard mysql:// -> mysql+pymysql:// and strip accidental whitespace/newlines
+            url = self.DATABASE_URL.strip()
             if url.startswith("mysql://"):
                 url = url.replace("mysql://", "mysql+pymysql://", 1)
             elif url.startswith("mysql+pymysql://"):
