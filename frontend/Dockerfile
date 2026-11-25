@@ -26,16 +26,17 @@ FROM nginx:alpine
 # Copy built assets
 COPY --from=build /app/dist /usr/share/nginx/html
 
-# Custom nginx config to handle React Router client-side routing (SPA fallback)
-RUN echo 'server { \
-    listen 80; \
+# Custom nginx config template to handle React Router SPA fallback and Railway dynamic PORT
+RUN mkdir -p /etc/nginx/templates && echo 'server { \
+    listen ${PORT}; \
     location / { \
         root /usr/share/nginx/html; \
         index index.html index.htm; \
         try_files $uri $uri/ /index.html; \
     } \
-}' > /etc/nginx/conf.d/default.conf
+}' > /etc/nginx/templates/default.conf.template
 
+ENV PORT=80
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
